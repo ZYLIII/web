@@ -1,4 +1,4 @@
-from flask import Flask,request,session
+from flask import Flask,request,session，jsonify
 from settings import *
 from models import *
 from utils import *
@@ -106,76 +106,67 @@ def regist():
 			return result(200)
 		except:
 			return result(502,{"info":"error data"})
-#obain personal address
-@app.route("/api/self/address",methods=["GET"])
-def self_address():
-	if request.method == "GET":
-		sId = session['_id']
-		addresses = Address.query.filter_by(user_id=sId)
-		data = []
-		for address in addresses:
-			address = address.__dict__
-			del address["_sa_instance_state"]
-			data.append(address)
-		return result(200,{"address":data})
 
-#delete address
-@app.route("/api/address/delete",methods=["DELETE"])
-def address_delete():
-	if request.method=="DELETE":
+from flask import Flask, request, jsonify
 
-		_id = request.form["id"]
-		Address.query.filter_by(_id=_id).delete()
-		db.session.commit()
-		return result(200)
+app = Flask(__name__)
 
-#user personal address add
-@app.route("/api/self/address/add",methods=["POST"])
-def self_address_add():
-	if request.method=="POST":
-		sId = session['_id']
-		form = request.form
-		data = {
-			"province":form["province"],
-			"town":form["town"],
-			"county":form["county"],
-			"detail":form["detail"],
-			"user_id":sId
-		}
-		address = Address(**data)
-		db.session.add(address)
-		db.session.commit()
-		return result(200)
-#address add
-@app.route("/api/address/add",methods=["POST"])
-def address_add():
-	if request.method=="POST":
+# Obtain personal information
+@app.route("/api/self/information", methods=["GET"])
+def get_self_information():
+    sId = session['_id']
+    informations = Information.query.filter_by(user_id=sId)
+    data = [info.__dict__ for info in informations]
+    for info in data:
+        del info["_sa_instance_state"]
+    return jsonify(status=200, information=data)
 
-		form = request.form
-		data = {
-			"province":form["province"],
-			"town":form["town"],
-			"county":form["county"],
-			"detail":form["detail"],
-		}
-		address = Address(**data)
-		db.session.add(address)
-		db.session.commit()
-		return result(200)
+# Delete information
+@app.route("/api/information/delete", methods=["DELETE"])
+def delete_information():
+    _id = request.form["id"]
+    Information.query.filter_by(_id=_id).delete()
+    db.session.commit()
+    return jsonify(status=200)
 
-#obain all address info port
-@app.route("/api/address")
-def address():
-	if request.method == "GET":
+# Add personal information
+@app.route("/api/self/information/add", methods=["POST"])
+def add_self_information():
+    sId = session['_id']
+    data = {
+        "province": request.form["province"],
+        "town": request.form["town"],
+        "county": request.form["county"],
+        "detail": request.form["detail"],
+        "user_id": sId
+    }
+    information = Information(**data)
+    db.session.add(information)
+    db.session.commit()
+    return jsonify(status=200)
 
-		addresses = Address.query.filter_by(user_id=None)
-		data = dict()
-		data["data"]=[]
-		for address in addresses:
-			dic = address.__dict__
-			del dic["_sa_instance_state"]
-			data["data"].append(dic) 
-		return result(200,data)
+# Add information
+@app.route("/api/information/add", methods=["POST"])
+def add_information():
+    data = {
+        "province": request.form["province"],
+        "town": request.form["town"],
+        "county": request.form["county"],
+        "detail": request.form["detail"],
+    }
+    information = Information(**data)
+    db.session.add(information)
+    db.session.commit()
+    return jsonify(status=200)
+
+# Obtain all information
+@app.route("/api/information", methods=["GET"])
+def get_all_information():
+    informations = Information.query.filter_by(user_id=None)
+    data = {"data": [info.__dict__ for info in informations]}
+    for info in data["data"]:
+        del info["_sa_instance_state"]
+    return jsonify(status=200, **data)
 
 
 
