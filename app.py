@@ -18,7 +18,7 @@ def before():
 		request.form = data
 	except:
 		pass
-	url = request.path #当前请求的URL
+	url = request.path #request URL now
 	passUrl = WHITE_NAME_LIST
 	if url in passUrl:
 		pass 
@@ -29,11 +29,11 @@ def before():
 	else:
 		_id = session.get("_id",None)
 		if not _id:
-			return result(203,{"info":"未登录"})
+			return result(203,{"info":"not login"})
 		else:
 			pass 
 
-#登录接口。普通用户和管理员分开 
+#login port user&admin
 @app.route("/api/login",methods=["POST","GET"])
 def login():
 
@@ -51,9 +51,9 @@ def login():
 					db.session.commit()
 					return result(200)
 				else:
-					return result(202,{"info":"密码不正确"})
+					return result(202,{"info":"Wrong P password"})
 			else:
-				return result(201,{"info":"无该管理员信息"})
+				return result(201,{"info":"No this admin info"})
 		else:
 			user = User.query.filter_by(account=account).first()
 			if user:
@@ -63,13 +63,13 @@ def login():
 					db.session.commit()
 					return result(200)
 				else:
-					return result(202,{"info":"密码不正确"})
+					return result(202,{"info":"Wrong Password"})
 			else:
-				return result(201,{"info":"无该用户信息"})
+				return result(201,{"info":"No this user information"})
 	if request.method == "GET":
 		return result()
 
-#退出系统
+#exit system
 @app.route("/api/quit",methods=["POST"])
 def quit():
 	if request.method == "POST":
@@ -84,7 +84,7 @@ def quit():
 		del session["_id"]
 		return result(200)
 
-#普通用户注册接口
+#normal register port
 @app.route("/api/regist",methods=["POST"])
 def regist():
 	if request.method=="POST":
@@ -97,7 +97,7 @@ def regist():
 				db.session.add(user)
 				db.session.commit()
 			except:
-				return result(205,{"info":"重复注册"})
+				return result(205,{"info":"Has been registered"})
 			user = User.query.filter_by(account=account).first()
 			court = Court(user_id=user._id)
 			db.session.add(court)
@@ -105,8 +105,8 @@ def regist():
 			session["_id"] = user._id 
 			return result(200)
 		except:
-			return result(502,{"info":"数据有误"})
-#获取个人地址
+			return result(502,{"info":"error data"})
+#obain personal address
 @app.route("/api/self/address",methods=["GET"])
 def self_address():
 	if request.method == "GET":
@@ -119,7 +119,7 @@ def self_address():
 			data.append(address)
 		return result(200,{"address":data})
 
-#地址删除
+#delete address
 @app.route("/api/address/delete",methods=["DELETE"])
 def address_delete():
 	if request.method=="DELETE":
@@ -129,7 +129,7 @@ def address_delete():
 		db.session.commit()
 		return result(200)
 
-#用户个人地址添加
+#user personal address add
 @app.route("/api/self/address/add",methods=["POST"])
 def self_address_add():
 	if request.method=="POST":
@@ -146,7 +146,7 @@ def self_address_add():
 		db.session.add(address)
 		db.session.commit()
 		return result(200)
-#地址添加
+#address add
 @app.route("/api/address/add",methods=["POST"])
 def address_add():
 	if request.method=="POST":
@@ -163,7 +163,7 @@ def address_add():
 		db.session.commit()
 		return result(200)
 
-#获取所有地址信息接口
+#obain all address info port
 @app.route("/api/address")
 def address():
 	if request.method == "GET":
