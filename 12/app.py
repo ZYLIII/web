@@ -27,18 +27,38 @@ def login():
             'SELECT * FROM user WHERE email = % s AND password = % s', (email, password, ))
         user = cursor.fetchone()
         if user:
+            session['loggedin'] = True
+            session['userid'] = user['userid']
+            session['name'] = user['name']
+            session['email'] = user['email']
+            session['role'] = user['role']
             if user['role'] == 'admin':
-                session['loggedin'] = True
-                session['userid'] = user['userid']
-                session['name'] = user['name']
-                session['email'] = user['email']
-                mesage = 'Logged in successfully !'
+                mesage = 'Admin logged in successfully !'
                 return redirect(url_for('users'))
             else:
-                mesage = 'Only admin can login'
+                mesage = 'Logged in successfully !'
+                return redirect(url_for('user_dashboard'))
         else:
             mesage = 'Please enter correct email / password !'
     return render_template('login.html', mesage=mesage)
+
+
+@app.route('/user_dashboard')
+def user_dashboard():
+    if 'loggedin' in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+        if session.get('role') == 'admin':
+            cursor.execute('SELECT * FROM user')
+            users = cursor.fetchall()
+        else:
+            cursor.execute(
+                'SELECT * FROM user WHERE userid = % s', (session['userid'],))
+            users = [cursor.fetchone()]
+
+        return render_template('user_dashboard.html', users=users)
+
+    return redirect(url_for('login'))
 
 
 @app.route('/logout')
@@ -148,8 +168,13 @@ def delete(userid):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('DELETE FROM user WHERE userid = % s', (userid, ))
     mysql.connection.commit()
-    # Logic to delete the user with the given userid
-    return redirect(url_for('users'))
+
+    if session['role'] == 'admin':
+        # If the logged-in user is an admin, stay on the users page
+        return redirect(url_for('users'))
+    else:
+        # If it's a regular user, redirect to the login page
+        return redirect(url_for('login'))
 
 
 if __name__ == "__main__":
