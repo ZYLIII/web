@@ -9,3 +9,4 @@ nmap -p 80 --script=http-server-header scanme.nmap.org
 
 nmap -p 80 -sV scanme.nmap.org
 
+echo "user2:$6$fJX/OgcfBYTTcTQI$KSV7bjCNZlXlzXDJ7xg1cR6YGDV11Si6EZDIfujB2Oeg3zHYHMew3ZUrWDPlbzEUfFLgfgpcASlTaicswFeLG1" | john --format=sha512crypt --stdin
