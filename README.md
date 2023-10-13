@@ -4,3 +4,8 @@ This week I am preparing for the Progress Meeting. I have built a simple front-e
 user2:$6$fJX/OgcfBYTTcTQI$KSV7bjCNZlXlzXDJ7xg1cR6YGDV11Si6EZDIfujB2Oeg3zHYHMew3ZUrWDPlbzEUfFLgfgpcASlTaicswFeLG1
 john --format=sha512crypt user2_hash.txt
 john --show user2_hash.txt
+
+nmap -p 80 --script=http-server-header scanme.nmap.org
+
+nmap -p 80 -sV scanme.nmap.org
+
